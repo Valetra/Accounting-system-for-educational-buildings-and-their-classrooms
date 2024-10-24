@@ -1,0 +1,48 @@
+services:
+  message_broker:
+    image: rabbitmq:management-alpine
+    restart: always
+    ports:
+      - 5673:5672
+      - 15673:15672
+    volumes:
+      - message-broker-data:/var/lib/rabbitmq/
+      - message-broker-log:/var/log/rabbitmq
+
+  buildings_database:
+    image: postgres:alpine
+    restart: always
+    environment:
+      - POSTGRES_DB=buildings
+      - POSTGRES_USER=buildings_user
+      - POSTGRES_PASSWORD=buildings_pass
+    ports:
+      - "5505:5432"
+    volumes:
+      - buildings-database:/var/lib/postgresql/data
+
+  classrooms_database:
+    image: postgres:alpine
+    restart: always
+    environment:
+      - POSTGRES_DB=classrooms
+      - POSTGRES_USER=classrooms_user
+      - POSTGRES_PASSWORD=classrooms_pass
+    ports:
+      - "5506:5432"
+    volumes:
+      - classrooms-database:/var/lib/postgresql/data
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  message-broker-data:
+    driver: local
+  message-broker-log:
+    driver: local
+  buildings-database:
+    driver: local
+  classrooms-database:
+    driver: local

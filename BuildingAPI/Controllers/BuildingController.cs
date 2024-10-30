@@ -8,10 +8,10 @@ using RabbitMq;
 namespace Controllers;
 
 [ApiController]
-public class BuildingController(IBuildingService buildingService, IRabbitMqProducer rabbitMqService, IMapper mapper) : ControllerBase
+public class BuildingController(IBuildingService buildingService, IRabbitMqProducer rabbitMqProducer, IMapper mapper) : ControllerBase
 {
 	private readonly IBuildingService _buildingService = buildingService;
-	private readonly IRabbitMqProducer _rabbitMqService = rabbitMqService;
+	private readonly IRabbitMqProducer _rabbitMqProducer = rabbitMqProducer;
 
 	[HttpGet("get-all")]
 	public async Task<ActionResult<List<ResponseObjects.Building>>> GetBuildings()
@@ -44,7 +44,7 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 		Building createdBuilding = await _buildingService.Create(buildingToCreate);
 
 		ResponseObjects.Building response = mapper.Map<ResponseObjects.Building>(createdBuilding);
-		await _rabbitMqService.SendMessage(response, "create");
+		await _rabbitMqProducer.SendMessage(response, "create");
 
 		return Ok(response);
 	}
@@ -63,7 +63,7 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 		}
 
 		ResponseObjects.Building response = mapper.Map<ResponseObjects.Building>(updatedBuilding);
-		await _rabbitMqService.SendMessage(response, "update");
+		await _rabbitMqProducer.SendMessage(response, "update");
 
 		return Ok(response);
 	}
@@ -76,7 +76,9 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 			return NotFound();
 		}
 
-		await _rabbitMqService.SendMessage(id, "delete");
+		ResponseObjects.Building response =
+			mapper.Map<ResponseObjects.Building>(new Building { Id = id, Name = "", Address = "", FloorsCount = 0 });
+		await _rabbitMqProducer.SendMessage(response, "delete");
 
 		return NoContent();
 	}

@@ -17,7 +17,7 @@ services:
       - POSTGRES_USER=buildings_user
       - POSTGRES_PASSWORD=buildings_pass
     ports:
-      - "5505:5432"
+      - "5515:5432"
     volumes:
       - buildings-database:/var/lib/postgresql/data
 
@@ -29,7 +29,7 @@ services:
       - POSTGRES_USER=classrooms_user
       - POSTGRES_PASSWORD=classrooms_pass
     ports:
-      - "5506:5432"
+      - "5516:5432"
     volumes:
       - classrooms-database:/var/lib/postgresql/data
 

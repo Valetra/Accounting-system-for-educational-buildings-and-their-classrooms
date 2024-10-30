@@ -39,13 +39,13 @@ if (buildingsDatabaseConnectionString is null)
 
 builder.Services.AddAutoMapper(typeof(AppMappingProfile));
 
-builder.Services.AddScoped<IRabbitMqProducer, RabbitMqProducer>(serviceProvider => new RabbitMqProducer(rabbitMqHostName, Int32.Parse(rabbitMqPort)));
-
 builder.Services.AddDbContext<BuildingContext>(options => options.UseNpgsql(buildingsDatabaseConnectionString));
 
 builder.Services.AddScoped<IBuildingRepository, BuildingRepository>();
 
 builder.Services.AddScoped<IBuildingService, BuildingService>();
+
+builder.Services.AddScoped<IRabbitMqProducer, RabbitMqProducer>(serviceProvider => new RabbitMqProducer(rabbitMqHostName, Int32.Parse(rabbitMqPort)));
 
 builder.Services.AddControllers();
 
@@ -59,7 +59,7 @@ builder.Services.AddSwaggerGen(options =>
 WebApplication app = builder.Build();
 
 using IServiceScope serviceScope = app.Services.CreateScope();
-await serviceScope.ServiceProvider.GetRequiredService<IRabbitMqProducer>().DeclareExchanges();
+await serviceScope.ServiceProvider.GetRequiredService<IRabbitMqProducer>().ExchangesDeclare();
 
 if (app.Environment.IsDevelopment())
 {

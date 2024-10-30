@@ -4,8 +4,21 @@ using System.Text.Json;
 
 namespace RabbitMq;
 
-public class RabbitMqService(string hostName) : IRabbitMqService
+public class RabbitMqProducer(string hostName, int port) : IRabbitMqProducer
 {
+	public Task DeclareExchanges()
+	{
+		ConnectionFactory factory = new() { HostName = hostName, Port = port };
+		using IConnection connection = factory.CreateConnection();
+		using IModel channel = connection.CreateModel();
+
+		channel.ExchangeDeclare("create", ExchangeType.Direct);
+		channel.ExchangeDeclare("update", ExchangeType.Direct);
+		channel.ExchangeDeclare("delete", ExchangeType.Direct);
+
+		return Task.CompletedTask;
+	}
+
 	public async Task SendMessage(object obj, string exchangeName)
 	{
 		string message = JsonSerializer.Serialize(obj);
@@ -14,11 +27,9 @@ public class RabbitMqService(string hostName) : IRabbitMqService
 
 	private Task SendMessage(string message, string exchangeName)
 	{
-		ConnectionFactory factory = new() { HostName = hostName, Port = 5673 };
+		ConnectionFactory factory = new() { HostName = hostName, Port = port };
 		using IConnection connection = factory.CreateConnection();
 		using IModel channel = connection.CreateModel();
-
-		channel.ExchangeDeclare(exchangeName, ExchangeType.Direct);
 
 		byte[] body = Encoding.UTF8.GetBytes(message);
 
@@ -30,3 +41,5 @@ public class RabbitMqService(string hostName) : IRabbitMqService
 		return Task.CompletedTask;
 	}
 }
+
+

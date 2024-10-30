@@ -8,10 +8,10 @@ using RabbitMq;
 namespace Controllers;
 
 [ApiController]
-public class BuildingController(IBuildingService buildingService, IRabbitMqService rabbitMqService, IMapper mapper) : ControllerBase
+public class BuildingController(IBuildingService buildingService, IRabbitMqProducer rabbitMqService, IMapper mapper) : ControllerBase
 {
 	private readonly IBuildingService _buildingService = buildingService;
-	private readonly IRabbitMqService _rabbitMqService = rabbitMqService;
+	private readonly IRabbitMqProducer _rabbitMqService = rabbitMqService;
 
 	[HttpGet("get-all")]
 	public async Task<ActionResult<List<ResponseObjects.Building>>> GetBuildings()

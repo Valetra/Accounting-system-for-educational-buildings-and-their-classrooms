@@ -6,19 +6,11 @@ namespace DAL.Models;
 public class Classroom
 {
 	public Guid Id { get; set; }
-	public required Guid Building { get; set; }
+	public required Guid BuildingId { get; set; }
 	public required string Name { get; set; }
-	public required ClassroomType Type { get; set; }
+	public required string Type { get; set; }
 	public required int Capacity { get; set; }
 	public required int Floor { get; set; }
 	public required byte Number { get; set; }
 	public bool IsDeleted { get; set; }
-
-	public enum ClassroomType
-	{
-		Lecture,
-		ForPractice,
-		Gym,
-		Other
-	}
 }

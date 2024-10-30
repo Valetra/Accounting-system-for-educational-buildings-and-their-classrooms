@@ -53,4 +53,6 @@ public class ShortBuildingInfoRepository(ClassroomContext context) : IShortBuild
 
 		return true;
 	}
+
+	public async Task<bool> Has(Guid id) => await Entities.AnyAsync(m => Equals(m.Id, id));
 }

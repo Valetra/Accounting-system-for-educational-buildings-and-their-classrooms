@@ -9,4 +9,5 @@ public interface IShortBuildingInfoRepository
 	Task<ShortBuildingInfo> Create(ShortBuildingInfo model);
 	Task<ShortBuildingInfo?> Update(ShortBuildingInfo model);
 	Task<bool> Delete(Guid id);
+	Task<bool> Has(Guid id);
 }

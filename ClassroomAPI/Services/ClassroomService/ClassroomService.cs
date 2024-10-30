@@ -1,5 +1,6 @@
 using DAL.Models;
 using DAL.Repository;
+using Exceptions;
 
 namespace Service;
 
@@ -9,7 +10,12 @@ public class ClassroomService(IClassroomRepository classroomRepository, IShortBu
 
 	public Task<Classroom?> Get(Guid id) => classroomRepository.Get(id);
 
-	public Task<Classroom> Create(Classroom model) => classroomRepository.Create(model);
+	public async Task<Classroom> Create(Classroom model)
+	{
+		bool isBuildingExists = await shortBuildingInfoRepository.Has(model.BuildingId);
+
+		return isBuildingExists ? await classroomRepository.Create(model) : throw new NotExistedBuildingException();
+	}
 
 	public Task<Classroom?> Update(Classroom model) => classroomRepository.Update(model);
 

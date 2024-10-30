@@ -6,7 +6,7 @@ namespace RabbitMq;
 
 public class RabbitMqProducer(string hostName, int port) : IRabbitMqProducer
 {
-	public Task DeclareExchanges()
+	public Task ExchangesDeclare()
 	{
 		ConnectionFactory factory = new() { HostName = hostName, Port = port };
 		using IConnection connection = factory.CreateConnection();

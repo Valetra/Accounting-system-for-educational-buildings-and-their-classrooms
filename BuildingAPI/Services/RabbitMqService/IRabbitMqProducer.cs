@@ -2,6 +2,6 @@ namespace RabbitMq;
 
 public interface IRabbitMqProducer
 {
-	Task DeclareExchanges();
+	Task ExchangesDeclare();
 	Task SendMessage(object obj, string exchangeName);
 }

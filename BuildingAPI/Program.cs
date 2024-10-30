@@ -1,44 +1,74 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.EntityFrameworkCore;
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+using DAL.Contexts;
+using DAL.Repository;
+using Service;
+using Mapper;
+using RabbitMq;
+
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+ConfigurationManager configuration = builder.Configuration;
+
+string? rabbitMqHostName = configuration["RabbitMqHostName"];
+
+if (rabbitMqHostName is null)
+{
+	string message = "Configuration variable \"RabbitMqHostName\" is required";
+	Console.Error.WriteLine(message);
+	return;
+}
+
+string? rabbitMqPort = configuration["RabbitMqPort"];
+
+if (rabbitMqPort is null)
+{
+	string message = "Configuration variable \"RabbitMqPort\" is required";
+	Console.Error.WriteLine(message);
+	return;
+}
+
+string? buildingsDatabaseConnectionString = configuration.GetConnectionString("BuildingsDatabase");
+
+if (buildingsDatabaseConnectionString is null)
+{
+	string message = "Connection string \"BuildingsDatabase\" is required";
+	Console.Error.WriteLine(message);
+	return;
+}
+
+builder.Services.AddAutoMapper(typeof(AppMappingProfile));
+
+builder.Services.AddScoped<IRabbitMqProducer, RabbitMqProducer>(serviceProvider => new RabbitMqProducer(rabbitMqHostName, Int32.Parse(rabbitMqPort)));
+
+builder.Services.AddDbContext<BuildingContext>(options => options.UseNpgsql(buildingsDatabaseConnectionString));
+
+builder.Services.AddScoped<IBuildingRepository, BuildingRepository>();
+
+builder.Services.AddScoped<IBuildingService, BuildingService>();
+
+builder.Services.AddControllers();
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+	options.DescribeAllParametersInCamelCase();
+	options.CustomSchemaIds(type => type.ToString());
+});
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
-// Configure the HTTP request pipeline.
+using IServiceScope serviceScope = app.Services.CreateScope();
+await serviceScope.ServiceProvider.GetRequiredService<IRabbitMqProducer>().DeclareExchanges();
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+	app.UseSwagger();
+	app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

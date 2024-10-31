@@ -8,5 +8,6 @@ public class AppMappingProfile : Profile
 	{
 		CreateMap<DAL.Models.Building, ResponseObjects.Building>();
 		CreateMap<RequestObjects.Building, DAL.Models.Building>();
+		CreateMap<DAL.Models.Building, MessageContracts.Building>();
 	}
 }

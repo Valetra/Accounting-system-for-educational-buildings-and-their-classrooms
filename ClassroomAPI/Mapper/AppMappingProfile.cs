@@ -8,6 +8,6 @@ public class AppMappingProfile : Profile
 	{
 		CreateMap<DAL.Models.Classroom, ResponseObjects.Classroom>();
 		CreateMap<RequestObjects.Classroom, DAL.Models.Classroom>();
-		CreateMap<RabbitMq.JsonDeserializeBuilding, DAL.Models.ShortBuildingInfo>();
+		CreateMap<MessageContracts.Building, DAL.Models.ShortBuildingInfo>();
 	}
 }

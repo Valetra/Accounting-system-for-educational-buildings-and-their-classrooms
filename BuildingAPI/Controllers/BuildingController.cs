@@ -54,9 +54,10 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 		Building buildingToCreate = mapper.Map<Building>(building);
 		Building createdBuilding = await _buildingService.Create(buildingToCreate);
 
-		ResponseObjects.Building response = mapper.Map<ResponseObjects.Building>(createdBuilding);
-		await _rabbitMqProducer.SendMessage(response, "create");
+		MessageContracts.Building buildingMessage = mapper.Map<MessageContracts.Building>(createdBuilding);
+		await _rabbitMqProducer.SendMessage(buildingMessage, "create");
 
+		ResponseObjects.Building response = mapper.Map<ResponseObjects.Building>(createdBuilding);
 		return Ok(response);
 	}
 
@@ -78,8 +79,10 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 			return NotFound($"Building with id = `{id}` does not exists.");
 		}
 
+		MessageContracts.Building buildingMessage = mapper.Map<MessageContracts.Building>(updatedBuilding);
+		await _rabbitMqProducer.SendMessage(buildingMessage, "update");
+
 		ResponseObjects.Building response = mapper.Map<ResponseObjects.Building>(updatedBuilding);
-		await _rabbitMqProducer.SendMessage(response, "update");
 
 		return Ok(response);
 	}
@@ -96,9 +99,8 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 			return NotFound();
 		}
 
-		ResponseObjects.Building response =
-			mapper.Map<ResponseObjects.Building>(new Building { Id = id, Name = "", Address = "", FloorsCount = 0 });
-		await _rabbitMqProducer.SendMessage(response, "delete");
+		MessageContracts.Building buildingMessage = mapper.Map<MessageContracts.Building>(new MessageContracts.Building { Id = id });
+		await _rabbitMqProducer.SendMessage(buildingMessage, "delete");
 
 		return NoContent();
 	}

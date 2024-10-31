@@ -49,11 +49,11 @@ public class RabbitMqConsumer : BackgroundService
 
 				string content = Encoding.UTF8.GetString(ea.Body.ToArray());
 
-				JsonDeserializeBuilding? jsonDeserializeBuilding = JsonSerializer.Deserialize<JsonDeserializeBuilding>(content);
+				MessageContracts.Building? messageBuilding = JsonSerializer.Deserialize<MessageContracts.Building>(content);
 
-				if (jsonDeserializeBuilding is not null)
+				if (messageBuilding is not null)
 				{
-					ShortBuildingInfo shortBuildingInfo = _mapper.Map<ShortBuildingInfo>(jsonDeserializeBuilding);
+					ShortBuildingInfo shortBuildingInfo = _mapper.Map<ShortBuildingInfo>(messageBuilding);
 
 					switch (ea.Exchange)
 					{

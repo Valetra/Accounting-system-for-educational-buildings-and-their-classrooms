@@ -14,6 +14,6 @@ public class Classroom
 	[Required]
 	public required int Floor { get; set; }
 	[Required]
-	public required byte Number { get; set; }
+	public required int Number { get; set; }
 	public required int Capacity { get; set; }
 }

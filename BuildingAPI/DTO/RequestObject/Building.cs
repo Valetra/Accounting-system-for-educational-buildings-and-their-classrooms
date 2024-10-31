@@ -9,6 +9,6 @@ public class Building
 	[Required]
 	public required string Address { get; set; }
 	[Required]
-	public required byte FloorsCount { get; set; }
+	public required int FloorsCount { get; set; }
 	public string? Other { get; set; }
 }

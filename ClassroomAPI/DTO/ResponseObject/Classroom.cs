@@ -9,6 +9,6 @@ public class Classroom
 	public required string Name { get; set; }
 	public required string Type { get; set; }
 	public required int Floor { get; set; }
-	public required byte Number { get; set; }
+	public required int Number { get; set; }
 	public required int Capacity { get; set; }
 }

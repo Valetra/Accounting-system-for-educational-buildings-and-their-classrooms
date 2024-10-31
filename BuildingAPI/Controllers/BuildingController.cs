@@ -47,6 +47,7 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 	/// <summary>
 	/// Добавление здания в базу данных.
 	/// </summary>
+	/// <param name="building">Здание</param>
 	[HttpPost("create")]
 	public async Task<ActionResult> CreateBuilding(RequestObjects.Building building)
 	{
@@ -62,17 +63,19 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 	/// <summary>
 	/// Изменение существующего здания в базе данных.
 	/// </summary>
-	[HttpPut("{buildingId}")]
-	public async Task<ActionResult<ResponseObjects.Building>> UpdateBuilding(Guid buildingId, RequestObjects.Building building)
+	/// <param name="id">Идентификатор здания</param>
+	/// <param name="building">Здание</param>
+	[HttpPut("{id}")]
+	public async Task<ActionResult<ResponseObjects.Building>> UpdateBuilding(Guid id, RequestObjects.Building building)
 	{
 		Building buildingToUpdate = mapper.Map<Building>(building);
-		buildingToUpdate.Id = buildingId;
+		buildingToUpdate.Id = id;
 
 		Building? updatedBuilding = await _buildingService.Update(buildingToUpdate);
 
 		if (updatedBuilding is null)
 		{
-			return NotFound($"Building with id = `{buildingId}` does not exists.");
+			return NotFound($"Building with id = `{id}` does not exists.");
 		}
 
 		ResponseObjects.Building response = mapper.Map<ResponseObjects.Building>(updatedBuilding);
@@ -84,6 +87,7 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 	/// <summary>
 	/// Изменение флага 'IsDeleted' в значение 'true' у существующего здания в базе данных.
 	/// </summary>
+	/// <param name="id">Идентификатор здания</param>
 	[HttpDelete("{id}")]
 	public async Task<IActionResult> DeleteBuilding(Guid id)
 	{

@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 using DAL.Contexts;
 using DAL.Repository;
@@ -54,6 +56,27 @@ builder.Services.AddSwaggerGen(options =>
 {
 	options.DescribeAllParametersInCamelCase();
 	options.CustomSchemaIds(type => type.ToString());
+
+	options.SwaggerDoc("v1", new OpenApiInfo
+	{
+		Version = "v1",
+		Title = "Building API",
+		Description = "Web API отвечающее за работу со зданиями.",
+		Contact = new OpenApiContact
+		{
+			Name = "Telegram разработчика",
+			Url = new Uri("https://t.me/Valetra")
+		},
+		License = new OpenApiLicense
+		{
+			Name = "Лицензия MIT",
+			Url = new Uri("https://opensource.org/license/mit")
+		}
+	});
+
+	string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+	string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+	options.IncludeXmlComments(xmlPath);
 });
 
 WebApplication app = builder.Build();

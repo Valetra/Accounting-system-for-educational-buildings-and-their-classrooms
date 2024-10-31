@@ -13,6 +13,9 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 	private readonly IBuildingService _buildingService = buildingService;
 	private readonly IRabbitMqProducer _rabbitMqProducer = rabbitMqProducer;
 
+	/// <summary>
+	/// Вызов всех зданий из базы данных.
+	/// </summary>
 	[HttpGet("get-all")]
 	public async Task<ActionResult<List<ResponseObjects.Building>>> GetBuildings()
 	{
@@ -22,6 +25,10 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 		return Ok(response);
 	}
 
+	/// <summary>
+	/// Вызов здания из базы данных.
+	/// </summary>
+	/// <param name="id">Идентификатор здания</param>
 	[HttpGet("get")]
 	public async Task<ActionResult<ResponseObjects.Building>> GetBuilding([FromQuery] Guid id)
 	{
@@ -37,6 +44,9 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 		return Ok(response);
 	}
 
+	/// <summary>
+	/// Добавление здания в базу данных.
+	/// </summary>
 	[HttpPost("create")]
 	public async Task<ActionResult> CreateBuilding(RequestObjects.Building building)
 	{
@@ -49,6 +59,9 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 		return Ok(response);
 	}
 
+	/// <summary>
+	/// Изменение существующего здания в базе данных.
+	/// </summary>
 	[HttpPut("{buildingId}")]
 	public async Task<ActionResult<ResponseObjects.Building>> UpdateBuilding(Guid buildingId, RequestObjects.Building building)
 	{
@@ -68,6 +81,9 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 		return Ok(response);
 	}
 
+	/// <summary>
+	/// Изменение флага 'IsDeleted' в значение 'true' у существующего здания в базе данных.
+	/// </summary>
 	[HttpDelete("{id}")]
 	public async Task<IActionResult> DeleteBuilding(Guid id)
 	{

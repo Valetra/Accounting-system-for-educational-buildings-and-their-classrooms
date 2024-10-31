@@ -85,7 +85,7 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 	}
 
 	/// <summary>
-	/// Изменение флага 'IsDeleted' в значение 'true' у существующего здания в базе данных.
+	/// Удаление здания из базы данных.
 	/// </summary>
 	/// <param name="id">Идентификатор здания</param>
 	[HttpDelete("{id}")]

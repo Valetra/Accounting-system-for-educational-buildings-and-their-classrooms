@@ -72,9 +72,11 @@ public class ClassroomController(IClassroomService classroomService, IMapper map
 	/// <summary>
 	/// Добавление аудитории в базу данных.
 	/// </summary>
+	/// <remarks>
 	/// Комментарии:
 	/// 1) Использование идентификатора здания("buildingId") разрешено только из уже существующих/созданных(не удалённых) зданий.
 	/// 2) Допустимые значения поля "type" = ["Lecture", "ForPractice", "Gym", "Other"]
+	/// </remarks>
 	/// <param name="classroom">Аудитория</param>
 	[HttpPost("create")]
 	public async Task<ActionResult> CreateClassroom(RequestObjects.Classroom classroom)
@@ -100,9 +102,11 @@ public class ClassroomController(IClassroomService classroomService, IMapper map
 	/// <summary>
 	/// Изменение аудитории в базе данных.
 	/// </summary>
+	/// <remarks>
 	/// Комментарии:
 	/// 1) Использование идентификатора здания("buildingId") разрешено только из уже существующих/созданных(не удалённых) зданий.
 	/// 2) Допустимые значения поля "type" = ["Lecture", "ForPractice", "Gym", "Other"]
+	/// </remarks>
 	/// <param name="id">Идентификатор аудитории</param>
 	/// <param name="classroom">Аудитория</param>
 	[HttpPut("{id}")]
@@ -113,18 +117,37 @@ public class ClassroomController(IClassroomService classroomService, IMapper map
 
 		Classroom? updatedClassroom = await _classroomService.Update(classroomToUpdate);
 
-		if (updatedClassroom is null)
+		try
 		{
-			return NotFound($"Classroom with id = `{id}` does not exists.");
+			if (updatedClassroom is null)
+			{
+				return NotFound($"Classroom with id = `{id}` does not exists.");
+			}
+			else
+			{
+				ShortBuildingInfo? shortBuildingInfo = await _classroomService.GetShortBuildingInfo(updatedClassroom.BuildingId);
+
+				if (shortBuildingInfo is null)
+				{
+					throw new NotExistedBuildingException();
+				}
+				else
+				{
+					ResponseObjects.Classroom response = mapper.Map<ResponseObjects.Classroom>(updatedClassroom);
+					response.ShortBuildingInfo = shortBuildingInfo;
+
+					return Ok(response);
+				}
+			}
 		}
-
-		ResponseObjects.Classroom response = mapper.Map<ResponseObjects.Classroom>(updatedClassroom);
-
-		return Ok(response);
+		catch (NotExistedBuildingException)
+		{
+			return BadRequest($"There is no building with Id = {classroom.BuildingId}");
+		}
 	}
 
 	/// <summary>
-	/// Изменение флага 'IsDeleted' в значение 'true' у существующей аудитории в базе данных.
+	/// Удаление аудитории из базы данных.
 	/// </summary>
 	/// <param name="id">Идентификатор аудитории</param>
 	[HttpDelete("{id}")]

@@ -14,7 +14,7 @@ Solution structure.
 ## Usage
 
 1. Clone this repository.
-1. Run Docker Engine.
+1. Start Docker Engine.
 1. Open solution folder from console.
 1. Run command `docker-compose up --build` in the root of solution to assemble and run application.
 1. Wait until docker containers will assemble and run.

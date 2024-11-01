@@ -8,17 +8,14 @@ Solution structure.
 
 ## Prerequisites
 
-+ [VSCode](https://code.visualstudio.com/)
 + [Git](https://git-scm.com/)
 + [Docker](https://www.docker.com/)
 
 ## Usage
 
-### Getting started
-
 1. Clone this repository.
-1. Open solution folder in VSCode.
 1. Run Docker Engine.
+1. Open solution folder from console.
 1. Run command `docker-compose up --build` in the root of solution to assemble and run application.
 1. Wait until docker containers will assemble and run.
 1. Open browser on page "http://localhost:3000/swagger" for use Building API.

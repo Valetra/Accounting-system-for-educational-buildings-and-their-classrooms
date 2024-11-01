@@ -30,6 +30,15 @@ if (rabbitMqPort is null)
 	return;
 }
 
+string? queueName = configuration["QueueName"];
+
+if (queueName is null)
+{
+	string message = "Configuration variable \"QueueName\" is required";
+	Console.Error.WriteLine(message);
+	return;
+}
+
 string? buildingsDatabaseConnectionString = configuration.GetConnectionString("BuildingsDatabase");
 
 if (buildingsDatabaseConnectionString is null)
@@ -47,7 +56,15 @@ builder.Services.AddScoped<IBuildingRepository, BuildingRepository>();
 
 builder.Services.AddScoped<IBuildingService, BuildingService>();
 
-builder.Services.AddScoped<IRabbitMqProducer, RabbitMqProducer>(serviceProvider => new RabbitMqProducer(rabbitMqHostName, Int32.Parse(rabbitMqPort)));
+builder.Services.AddScoped<IRabbitMqProducer, RabbitMqProducer>
+(
+	serviceProvider => new RabbitMqProducer
+	(
+		rabbitMqHostName,
+		Int32.Parse(rabbitMqPort),
+		queueName
+	)
+);
 
 builder.Services.AddControllers();
 
@@ -82,13 +99,10 @@ builder.Services.AddSwaggerGen(options =>
 WebApplication app = builder.Build();
 
 using IServiceScope serviceScope = app.Services.CreateScope();
-await serviceScope.ServiceProvider.GetRequiredService<IRabbitMqProducer>().ExchangesDeclare();
+await serviceScope.ServiceProvider.GetRequiredService<IRabbitMqProducer>().InitRabbitMq();
 
-if (app.Environment.IsDevelopment())
-{
-	app.UseSwagger();
-	app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

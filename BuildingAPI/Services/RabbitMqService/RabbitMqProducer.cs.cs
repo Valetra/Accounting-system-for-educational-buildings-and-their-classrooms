@@ -4,17 +4,23 @@ using System.Text.Json;
 
 namespace RabbitMq;
 
-public class RabbitMqProducer(string hostName, int port) : IRabbitMqProducer
+public class RabbitMqProducer(string hostName, int port, string queueName) : IRabbitMqProducer
 {
-	public Task ExchangesDeclare()
+	public Task InitRabbitMq()
 	{
 		ConnectionFactory factory = new() { HostName = hostName, Port = port };
 		using IConnection connection = factory.CreateConnection();
 		using IModel channel = connection.CreateModel();
 
+		channel.QueueDeclare(queue: queueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
+
 		channel.ExchangeDeclare("create", ExchangeType.Direct);
 		channel.ExchangeDeclare("update", ExchangeType.Direct);
 		channel.ExchangeDeclare("delete", ExchangeType.Direct);
+
+		channel.QueueBind(queueName, "create", String.Empty);
+		channel.QueueBind(queueName, "update", String.Empty);
+		channel.QueueBind(queueName, "delete", String.Empty);
 
 		return Task.CompletedTask;
 	}

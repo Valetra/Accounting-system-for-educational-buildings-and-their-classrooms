@@ -10,9 +10,9 @@ public class ClassroomRepository(ClassroomContext context) : IClassroomRepositor
 	protected readonly DbContext Context = context;
 	protected readonly DbSet<Classroom> Entities = context.Set<Classroom>();
 
-	public IQueryable<Classroom> GetAll() => Entities.Where(e => !e.IsDeleted);
+	public IQueryable<Classroom> GetAll() => Entities.Where(e => !e.IsDeleted).Include(e => e.ShortBuildingInfo);
 
-	public Task<Classroom?> Get(Guid id) => Entities.FirstOrDefaultAsync(m => Equals(m.Id, id) && !m.IsDeleted);
+	public Task<Classroom?> Get(Guid id) => Entities.AsNoTracking().Include(e => e.ShortBuildingInfo).FirstOrDefaultAsync(m => Equals(m.Id, id) && !m.IsDeleted);
 
 	public async Task<Classroom> Create(Classroom model)
 	{
@@ -53,4 +53,6 @@ public class ClassroomRepository(ClassroomContext context) : IClassroomRepositor
 
 		return true;
 	}
+
+	public async Task<bool> Has(Guid id) => await Entities.AnyAsync(m => Equals(m.Id, id) && !m.IsDeleted);
 }

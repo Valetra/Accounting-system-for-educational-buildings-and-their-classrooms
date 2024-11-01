@@ -9,4 +9,5 @@ public interface IClassroomRepository
 	Task<Classroom> Create(Classroom model);
 	Task<Classroom?> Update(Classroom model);
 	Task<bool> Delete(Guid id);
+	Task<bool> Has(Guid id);
 }

@@ -1,0 +1,20 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+
+WORKDIR /app
+
+COPY BuildingAPI ./BuildingAPI
+COPY MessageContracts ./MessageContracts
+
+WORKDIR /app/BuildingAPI
+
+RUN dotnet restore
+RUN dotnet publish --configuration Release --output publish
+
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS run
+
+WORKDIR /app
+
+COPY --from=build /app/BuildingAPI/publish ./
+
+ENTRYPOINT ["dotnet", "BuildingAPI.dll"]

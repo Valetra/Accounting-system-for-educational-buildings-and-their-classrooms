@@ -10,4 +10,6 @@ public class ShortBuildingInfo
 	public required string Name { get; set; }
 	public required string Address { get; set; }
 	public bool IsDeleted { get; set; }
+
+	public List<Classroom> Classrooms { get; set; } = [];
 }

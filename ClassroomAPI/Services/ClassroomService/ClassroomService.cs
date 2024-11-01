@@ -17,7 +17,22 @@ public class ClassroomService(IClassroomRepository classroomRepository, IShortBu
 		return isBuildingExists ? await classroomRepository.Create(model) : throw new NotExistedBuildingException();
 	}
 
-	public Task<Classroom?> Update(Classroom model) => classroomRepository.Update(model);
+	public async Task<Classroom> Update(Classroom model)
+	{
+		Classroom? existingClassroom = await classroomRepository.Get(model.Id)
+			?? throw new NotExistedClassroomException();
+
+		bool isBuildingExists = await shortBuildingInfoRepository.Has(model.BuildingId);
+
+		if (!isBuildingExists)
+		{
+			throw new NotExistedBuildingException();
+		}
+
+		await classroomRepository.Update(model);
+
+		return existingClassroom;
+	}
 
 	public async Task<bool> Delete(Guid id) => await classroomRepository.Delete(id);
 

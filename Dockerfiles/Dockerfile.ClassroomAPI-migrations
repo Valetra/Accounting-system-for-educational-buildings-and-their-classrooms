@@ -1,0 +1,19 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+
+WORKDIR /app
+
+COPY ClassroomAPI ./ClassroomAPI
+COPY MessageContracts ./MessageContracts
+
+WORKDIR /app/ClassroomAPI
+
+RUN dotnet restore
+
+
+FROM build as migrations
+
+RUN dotnet tool install --global dotnet-ef
+
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+ENTRYPOINT ["dotnet-ef", "database", "update"]

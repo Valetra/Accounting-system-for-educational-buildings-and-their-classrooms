@@ -1,9 +1,50 @@
 services:
+  building_api:
+    build:
+      dockerfile: Dockerfiles/Dockerfile.BuildingAPI
+    restart: always
+    ports:
+      - 3000:8080
+    depends_on:
+      message_broker:
+        condition: service_started
+      buildings_database:
+        condition: service_started
+      building_api_migrations:
+        condition: service_completed_successfully
+
+  building_api_migrations:
+    build:
+      dockerfile: Dockerfiles/Dockerfile.BuildingAPI-migrations
+    depends_on:
+      buildings_database:
+        condition: service_started
+
+  classroom_api:
+    build:
+      dockerfile: Dockerfiles/Dockerfile.ClassroomAPI
+    restart: always
+    ports:
+      - 3001:8080
+    depends_on:
+      message_broker:
+        condition: service_started
+      classrooms_database:
+        condition: service_started
+      classrooms_api_migrations:
+        condition: service_completed_successfully
+
+  classrooms_api_migrations:
+    build:
+      dockerfile: Dockerfiles/Dockerfile.ClassroomAPI-migrations
+    depends_on:
+      buildings_database:
+        condition: service_started
+
   message_broker:
     image: rabbitmq:management-alpine
     restart: always
     ports:
-      - 5673:5672
       - 15673:15672
     volumes:
       - message-broker-data:/var/lib/rabbitmq/
@@ -16,8 +57,6 @@ services:
       - POSTGRES_DB=buildings
       - POSTGRES_USER=buildings_user
       - POSTGRES_PASSWORD=buildings_pass
-    ports:
-      - "5515:5432"
     volumes:
       - buildings-database:/var/lib/postgresql/data
 
@@ -28,8 +67,6 @@ services:
       - POSTGRES_DB=classrooms
       - POSTGRES_USER=classrooms_user
       - POSTGRES_PASSWORD=classrooms_pass
-    ports:
-      - "5516:5432"
     volumes:
       - classrooms-database:/var/lib/postgresql/data
 

@@ -21,7 +21,7 @@ namespace ClassroomAPI.Migrations
                     Type = table.Column<string>(type: "text", nullable: false),
                     Capacity = table.Column<int>(type: "integer", nullable: false),
                     Floor = table.Column<int>(type: "integer", nullable: false),
-                    Number = table.Column<byte>(type: "smallint", nullable: false),
+                    Number = table.Column<int>(type: "integer", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>

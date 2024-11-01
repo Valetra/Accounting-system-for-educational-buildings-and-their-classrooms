@@ -3,6 +3,7 @@ using System;
 using DAL.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ClassroomAPI.Migrations
 {
     [DbContext(typeof(ClassroomContext))]
-    partial class ClassroomContextModelSnapshot : ModelSnapshot
+    [Migration("20241031143132_Init")]
+    partial class Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,8 +56,6 @@ namespace ClassroomAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BuildingId");
-
                     b.HasIndex("Name");
 
                     b.ToTable("Classrooms");
@@ -84,22 +85,6 @@ namespace ClassroomAPI.Migrations
                     b.HasIndex("Name");
 
                     b.ToTable("ShortBuildingInfo");
-                });
-
-            modelBuilder.Entity("DAL.Models.Classroom", b =>
-                {
-                    b.HasOne("DAL.Models.ShortBuildingInfo", "ShortBuildingInfo")
-                        .WithMany("Classrooms")
-                        .HasForeignKey("BuildingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ShortBuildingInfo");
-                });
-
-            modelBuilder.Entity("DAL.Models.ShortBuildingInfo", b =>
-                {
-                    b.Navigation("Classrooms");
                 });
 #pragma warning restore 612, 618
         }

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ClassroomAPI.Migrations
 {
     [DbContext(typeof(ClassroomContext))]
-    [Migration("20241030114942_Init")]
-    partial class Init
+    [Migration("20241031200122_Secound")]
+    partial class Secound
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,14 +47,16 @@ namespace ClassroomAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<byte>("Number")
-                        .HasColumnType("smallint");
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BuildingId");
 
                     b.HasIndex("Name");
 
@@ -85,6 +87,22 @@ namespace ClassroomAPI.Migrations
                     b.HasIndex("Name");
 
                     b.ToTable("ShortBuildingInfo");
+                });
+
+            modelBuilder.Entity("DAL.Models.Classroom", b =>
+                {
+                    b.HasOne("DAL.Models.ShortBuildingInfo", "ShortBuildingInfo")
+                        .WithMany("Classrooms")
+                        .HasForeignKey("BuildingId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.Navigation("ShortBuildingInfo");
+                });
+
+            modelBuilder.Entity("DAL.Models.ShortBuildingInfo", b =>
+                {
+                    b.Navigation("Classrooms");
                 });
 #pragma warning restore 612, 618
         }

@@ -18,6 +18,6 @@ Solution structure.
 1. Open solution folder from console.
 1. Run command `docker-compose up --build` in the root of solution to assemble and run application.
 1. Wait until docker containers will assemble and run.
-1. Open browser on page "http://localhost:3000/swagger" for use Building API.
-1. Open browser on page "http://localhost:3001/swagger" for use Classroom API.
+1. Open browser on page "http://localhost:3000/swagger" to use Building API.
+1. Open browser on page "http://localhost:3001/swagger" to use Classroom API.
 1. Open browser on page "http://localhost:15673" to see RabbitMq UI.

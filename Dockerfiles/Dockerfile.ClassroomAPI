@@ -1,0 +1,20 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+
+WORKDIR /app
+
+COPY ClassroomAPI ./ClassroomAPI
+COPY MessageContracts ./MessageContracts
+
+WORKDIR /app/ClassroomAPI
+
+RUN dotnet restore
+RUN dotnet publish --configuration Release --output publish
+
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS run
+
+WORKDIR /app
+
+COPY --from=build /app/ClassroomAPI/publish ./
+
+ENTRYPOINT ["dotnet", "ClassroomAPI.dll"]

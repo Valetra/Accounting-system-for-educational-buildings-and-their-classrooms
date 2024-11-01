@@ -32,8 +32,8 @@ namespace BuildingAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<byte>("FloorsCount")
-                        .HasColumnType("smallint");
+                    b.Property<int>("FloorsCount")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");

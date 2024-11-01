@@ -18,7 +18,7 @@ namespace BuildingAPI.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Address = table.Column<string>(type: "text", nullable: false),
-                    FloorsCount = table.Column<byte>(type: "smallint", nullable: false),
+                    FloorsCount = table.Column<int>(type: "integer", nullable: false),
                     Other = table.Column<string>(type: "text", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },

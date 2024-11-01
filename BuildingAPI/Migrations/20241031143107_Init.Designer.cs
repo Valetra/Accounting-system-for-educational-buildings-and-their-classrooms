@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BuildingAPI.Migrations
 {
     [DbContext(typeof(BuildingContext))]
-    [Migration("20241030110422_Init")]
+    [Migration("20241031143107_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -35,8 +35,8 @@ namespace BuildingAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<byte>("FloorsCount")
-                        .HasColumnType("smallint");
+                    b.Property<int>("FloorsCount")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");

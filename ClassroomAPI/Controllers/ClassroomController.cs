@@ -19,24 +19,8 @@ public class ClassroomController(IClassroomService classroomService, IMapper map
 	public async Task<ActionResult<List<ResponseObjects.Classroom>>> GetClassrooms()
 	{
 		List<Classroom> classrooms = await _classroomService.GetAll();
-		List<ResponseObjects.Classroom> response = [];
+		List<ResponseObjects.Classroom> response = classrooms.Select(mapper.Map<ResponseObjects.Classroom>).ToList();
 
-		foreach (Classroom classroom in classrooms)
-		{
-			try
-			{
-				ShortBuildingInfo? shortBuildingInfo = await _classroomService.GetShortBuildingInfo(classroom.BuildingId) ?? throw new NotExistedBuildingException();
-				ResponseObjects.Classroom responseClassroom = mapper.Map<ResponseObjects.Classroom>(classroom);
-				responseClassroom.ShortBuildingInfo = shortBuildingInfo;
-
-				response.Add(responseClassroom);
-
-			}
-			catch (NotExistedBuildingException)
-			{
-				return BadRequest($"There is no building with Id = {classroom.BuildingId}");
-			}
-		}
 		return Ok(response);
 	}
 
@@ -56,16 +40,6 @@ public class ClassroomController(IClassroomService classroomService, IMapper map
 
 		ResponseObjects.Classroom response = mapper.Map<ResponseObjects.Classroom>(classroom);
 
-		try
-		{
-			ShortBuildingInfo? shortBuildingInfo = await _classroomService.GetShortBuildingInfo(classroom.BuildingId) ?? throw new NotExistedBuildingException();
-			response.ShortBuildingInfo = shortBuildingInfo;
-		}
-		catch (NotExistedBuildingException)
-		{
-			return BadRequest($"There is no building with Id = {classroom.BuildingId}");
-		}
-
 		return Ok(response);
 	}
 
@@ -83,20 +57,21 @@ public class ClassroomController(IClassroomService classroomService, IMapper map
 	{
 		Classroom classroomToCreate = mapper.Map<Classroom>(classroom);
 
+		Classroom createdClassroom;
+
 		try
 		{
-			Classroom createdClassroom = await _classroomService.Create(classroomToCreate);
-			ResponseObjects.Classroom response = mapper.Map<ResponseObjects.Classroom>(createdClassroom);
-
-			ShortBuildingInfo? shortBuildingInfo = await _classroomService.GetShortBuildingInfo(createdClassroom.BuildingId);
-			response.ShortBuildingInfo = shortBuildingInfo is not null ? shortBuildingInfo : throw new NotExistedBuildingException();
-
-			return Ok(response);
+			createdClassroom = await _classroomService.Create(classroomToCreate);
 		}
-		catch (NotExistedBuildingException)
+		catch (NotExistedBuildingException e)
 		{
-			return BadRequest($"There is no building with Id = {classroom.BuildingId}");
+			return BadRequest($"There is no building with Id = {e.BuildingId}");
 		}
+
+		ResponseObjects.Classroom response = mapper.Map<ResponseObjects.Classroom>(createdClassroom);
+
+		return Ok(response);
+
 	}
 
 	/// <summary>
@@ -110,40 +85,29 @@ public class ClassroomController(IClassroomService classroomService, IMapper map
 	/// <param name="id">Идентификатор аудитории</param>
 	/// <param name="classroom">Аудитория</param>
 	[HttpPut("{id}")]
-	public async Task<ActionResult<ResponseObjects.Classroom>> UpdateBuilding(Guid id, RequestObjects.Classroom classroom)
+	public async Task<ActionResult<ResponseObjects.Classroom>> UpdateClassroom(Guid id, RequestObjects.Classroom classroom)
 	{
 		Classroom classroomToUpdate = mapper.Map<Classroom>(classroom);
 		classroomToUpdate.Id = id;
 
-		Classroom? updatedClassroom = await _classroomService.Update(classroomToUpdate);
+		Classroom? updatedClassroom;
 
 		try
 		{
-			if (updatedClassroom is null)
-			{
-				return NotFound($"Classroom with id = `{id}` does not exists.");
-			}
-			else
-			{
-				ShortBuildingInfo? shortBuildingInfo = await _classroomService.GetShortBuildingInfo(updatedClassroom.BuildingId);
-
-				if (shortBuildingInfo is null)
-				{
-					throw new NotExistedBuildingException();
-				}
-				else
-				{
-					ResponseObjects.Classroom response = mapper.Map<ResponseObjects.Classroom>(updatedClassroom);
-					response.ShortBuildingInfo = shortBuildingInfo;
-
-					return Ok(response);
-				}
-			}
+			updatedClassroom = await _classroomService.Update(classroomToUpdate);
 		}
-		catch (NotExistedBuildingException)
+		catch (NotExistedClassroomException e)
 		{
-			return BadRequest($"There is no building with Id = {classroom.BuildingId}");
+			return NotFound($"Classroom with id = `{e.ClassroomId}` does not exists.");
 		}
+		catch (NotExistedBuildingException e)
+		{
+			return BadRequest($"Building with Id = `{e.BuildingId}`  does not exists");
+		}
+
+		ResponseObjects.Classroom response = mapper.Map<ResponseObjects.Classroom>(updatedClassroom);
+
+		return Ok(response);
 	}
 
 	/// <summary>

@@ -1,6 +1,6 @@
 namespace Exceptions;
 
-public class NotExistedBuildingException : Exception
+public class NotExistedBuildingException(Guid id) : Exception
 {
-
+	public readonly Guid BuildingId = id;
 }

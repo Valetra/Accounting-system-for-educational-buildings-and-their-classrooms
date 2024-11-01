@@ -14,19 +14,19 @@ public class ClassroomService(IClassroomRepository classroomRepository, IShortBu
 	{
 		bool isBuildingExists = await shortBuildingInfoRepository.Has(model.BuildingId);
 
-		return isBuildingExists ? await classroomRepository.Create(model) : throw new NotExistedBuildingException();
+		return isBuildingExists ? await classroomRepository.Create(model) : throw new NotExistedBuildingException(model.BuildingId);
 	}
 
 	public async Task<Classroom> Update(Classroom model)
 	{
 		Classroom? existingClassroom = await classroomRepository.Get(model.Id)
-			?? throw new NotExistedClassroomException();
+			?? throw new NotExistedClassroomException(model.Id);
 
 		bool isBuildingExists = await shortBuildingInfoRepository.Has(model.BuildingId);
 
 		if (!isBuildingExists)
 		{
-			throw new NotExistedBuildingException();
+			throw new NotExistedBuildingException(model.BuildingId);
 		}
 
 		await classroomRepository.Update(model);

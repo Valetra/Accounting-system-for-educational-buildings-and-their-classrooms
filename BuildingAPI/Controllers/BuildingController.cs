@@ -52,6 +52,7 @@ public class BuildingController(IBuildingService buildingService, IMapper mapper
 		Building createdBuilding = await buildingService.Create(buildingToCreate);
 
 		ResponseObjects.Building response = mapper.Map<ResponseObjects.Building>(createdBuilding);
+
 		return Ok(response);
 	}
 

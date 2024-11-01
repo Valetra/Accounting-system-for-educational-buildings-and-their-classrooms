@@ -3,23 +3,20 @@ using AutoMapper;
 
 using DAL.Models;
 using Service;
-using RabbitMq;
+using Exceptions;
 
 namespace Controllers;
 
 [ApiController]
-public class BuildingController(IBuildingService buildingService, IRabbitMqProducer rabbitMqProducer, IMapper mapper) : ControllerBase
+public class BuildingController(IBuildingService buildingService, IMapper mapper) : ControllerBase
 {
-	private readonly IBuildingService _buildingService = buildingService;
-	private readonly IRabbitMqProducer _rabbitMqProducer = rabbitMqProducer;
-
 	/// <summary>
 	/// Вызов всех зданий из базы данных.
 	/// </summary>
 	[HttpGet("get-all")]
 	public async Task<ActionResult<List<ResponseObjects.Building>>> GetBuildings()
 	{
-		List<Building> buildings = await _buildingService.GetAll();
+		List<Building> buildings = await buildingService.GetAll();
 		List<ResponseObjects.Building> response = buildings.Select(mapper.Map<ResponseObjects.Building>).ToList();
 
 		return Ok(response);
@@ -32,7 +29,7 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 	[HttpGet("get")]
 	public async Task<ActionResult<ResponseObjects.Building>> GetBuilding([FromQuery] Guid id)
 	{
-		Building? building = await _buildingService.Get(id);
+		Building? building = await buildingService.Get(id);
 
 		if (building is null)
 		{
@@ -52,10 +49,7 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 	public async Task<ActionResult> CreateBuilding(RequestObjects.Building building)
 	{
 		Building buildingToCreate = mapper.Map<Building>(building);
-		Building createdBuilding = await _buildingService.Create(buildingToCreate);
-
-		MessageContracts.Building buildingMessage = mapper.Map<MessageContracts.Building>(createdBuilding);
-		await _rabbitMqProducer.SendMessage(buildingMessage, "create");
+		Building createdBuilding = await buildingService.Create(buildingToCreate);
 
 		ResponseObjects.Building response = mapper.Map<ResponseObjects.Building>(createdBuilding);
 		return Ok(response);
@@ -72,19 +66,17 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 		Building buildingToUpdate = mapper.Map<Building>(building);
 		buildingToUpdate.Id = id;
 
-		Building? updatedBuilding = await _buildingService.Update(buildingToUpdate);
-
-		if (updatedBuilding is null)
+		try
 		{
-			return NotFound($"Building with id = `{id}` does not exists.");
+			Building? updatedBuilding = await buildingService.Update(buildingToUpdate);
+			ResponseObjects.Building response = mapper.Map<ResponseObjects.Building>(updatedBuilding);
+
+			return Ok(response);
 		}
-
-		MessageContracts.Building buildingMessage = mapper.Map<MessageContracts.Building>(updatedBuilding);
-		await _rabbitMqProducer.SendMessage(buildingMessage, "update");
-
-		ResponseObjects.Building response = mapper.Map<ResponseObjects.Building>(updatedBuilding);
-
-		return Ok(response);
+		catch (NotExistedBuildingException e)
+		{
+			return NotFound(e.Message);
+		}
 	}
 
 	/// <summary>
@@ -92,16 +84,6 @@ public class BuildingController(IBuildingService buildingService, IRabbitMqProdu
 	/// </summary>
 	/// <param name="id">Идентификатор здания</param>
 	[HttpDelete("{id}")]
-	public async Task<IActionResult> DeleteBuilding(Guid id)
-	{
-		if (!await _buildingService.Delete(id))
-		{
-			return NotFound();
-		}
-
-		MessageContracts.Building buildingMessage = mapper.Map<MessageContracts.Building>(new MessageContracts.Building { Id = id });
-		await _rabbitMqProducer.SendMessage(buildingMessage, "delete");
-
-		return NoContent();
-	}
+	public async Task<IActionResult> DeleteBuilding(Guid id) =>
+		await buildingService.Delete(id) ? NoContent() : NotFound();
 }

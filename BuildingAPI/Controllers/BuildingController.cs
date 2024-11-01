@@ -76,7 +76,7 @@ public class BuildingController(IBuildingService buildingService, IMapper mapper
 		}
 		catch (NotExistedBuildingException e)
 		{
-			return NotFound($"Building with id = `{e.Id}` does not exists.");
+			return NotFound($"Building with id = `{e.BuildingId}` does not exists.");
 		}
 	}
 

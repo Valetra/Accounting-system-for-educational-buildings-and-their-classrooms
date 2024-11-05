@@ -38,7 +38,7 @@ services:
     build:
       dockerfile: Dockerfiles/Dockerfile.ClassroomAPI-migrations
     depends_on:
-      buildings_database:
+      classrooms_database:
         condition: service_started
 
   message_broker:
